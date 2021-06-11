@@ -1,0 +1,1 @@
+/opt/emsdk/upstream/emscripten/em++  -DNDEBUG -O2  -O2 -s DEMANGLE_SUPPORT=1 --bind @CMakeFiles/hello.dir/objects1.rsp  -o hello.js @CMakeFiles/hello.dir/linklibs.rsp

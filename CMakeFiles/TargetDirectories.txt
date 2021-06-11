@@ -1,0 +1,3 @@
+/etc/build/CMakeFiles/rebuild_cache.dir
+/etc/build/CMakeFiles/hello.dir
+/etc/build/CMakeFiles/edit_cache.dir

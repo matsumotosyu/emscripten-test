@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <title>emscripten-opencv</title>
+  </head>
+  <body>
+  <!-- <input type="file" name="file-input" id="file-input" accept=".png"> -->
+  <input type="file" onchange="previewImage(this);" name="file-input" id="file-input" accept=".png">
+  <!-- accept="image/*" type="file" name="recipe[top_image]" id="recipe_top_image" /> -->
+  <img id='preview' src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==' style='max-width:200px;'>
+  <canvas id="canvas1" ></canvas>
+  <canvas id="canvas2" ></canvas>
+  <script src="index.js"></script>
+  <script src="hello.js"></script>
+  <script type="text/javascript">
+    function previewImage(obj)
+    {
+      var imageData;
+      var fileReader = new FileReader();
+      fileReader.onload = (function() {
+        var img = new Image();
+        img.src = fileReader.result;
+        img.onload = (function(e) {
+          var cv = document.getElementById('canvas1');
+          console.log(e.target);
+          console.log(e.target.naturalWidth);
+          console.log(e.target.naturalHeight);
+          cv.width = e.target.naturalWidth;
+          cv.height = e.target.naturalHeight;
+          var ct = cv.getContext('2d');
+          ct.drawImage(e.target, 0, 0);
+          imageData = ct.getImageData(0, 0, cv.width, cv.height);
+          console.log(imageData.data);
+          const hello = new Module.Hello();
+          var url = window.URL || window.webkitURL;
+          // LLVMのメモリ上にバイト配列を配置し、そのポインタを引数とすることで、バイナリデータを受け渡す。
+          var buf = Module._malloc(imageData.data.length);
+          Module.HEAPU8.set(imageData.data, buf);
+          // WASMファンクションの呼び出し
+          var dst = hello.imdecode(buf, imageData.data.length, cv.width, cv.height);
+          // 受け取ったバイト配列を画像として表示
+          console.log("after trans.");
+          console.log(dst);
+          // var blob2 = new Blob([ dst ], { type: "image/png" });
+          var imgData = new ImageData(new Uint8ClampedArray(dst), cv.width);
+          //imgData.height = cv.height;
+          imgData.height = cv.height;
+          console.log("aaaaaaaaaaaaaaaaaaaaaa");
+          var cv2 = document.getElementById('canvas2');
+          cv2.width = imgData.width;
+          cv2.height = imgData.height;
+          var ct2 = cv2.getContext('2d');
+          ct2.putImageData(imgData,0,0);
+        });
+      });
+      fileReader.readAsDataURL(obj.files[0]);
+    }
+  </script>
+  </body>
+</html>
